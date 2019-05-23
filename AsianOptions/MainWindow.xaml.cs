@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Windows;
 using System.Threading.Tasks;
+using System.Windows;
 
 
 namespace AsianOptions
@@ -43,9 +43,12 @@ namespace AsianOptions
         /// <summary>
         /// Main button to run the simulation.
         /// </summary>
+        /// 
+        //Cretae Shared Virabel
+        private int m_Counter = 0;
         private void cmdPriceOption_Click(object sender, RoutedEventArgs e)
         {
-            this.cmdPriceOption.IsEnabled = false;
+            //this.cmdPriceOption.IsEnabled = false;
 
             this.spinnerWait.Visibility = System.Windows.Visibility.Visible;
             this.spinnerWait.Spin = true;
@@ -57,6 +60,8 @@ namespace AsianOptions
             double interest = Convert.ToDouble(txtInterestRate.Text);
             long periods = Convert.ToInt64(txtPeriods.Text);
             long sims = Convert.ToInt64(txtSimulations.Text);
+            m_Counter++;
+            this.lblCount.Content = m_Counter.ToString();
 
             //
             // Run simulation to price option:
@@ -73,21 +78,26 @@ namespace AsianOptions
 
                  double elapsedTimeInSecs = (stop - start) / 1000.0;
 
-                  result = string.Format("{0:C}  [{1:#,##0.00} secs]",
-                     price, elapsedTimeInSecs);
+                 result = string.Format("{0:C}  [{1:#,##0.00} secs]",
+                    price, elapsedTimeInSecs);
              });
             //antecedent
             Task t2 = T.ContinueWith((antecedent) =>
-            { 
+            {
                 //
                 // Display the results:
                 //
                 this.lstPrices.Items.Insert(0, result);
 
-                this.spinnerWait.Spin = false;
-                this.spinnerWait.Visibility = System.Windows.Visibility.Collapsed;
+                m_Counter--;
+                this.lblCount.Content = m_Counter.ToString();
 
-                this.cmdPriceOption.IsEnabled = true;
+                if (m_Counter == 0)
+                {
+                    this.spinnerWait.Spin = false;
+                    this.spinnerWait.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                //this.cmdPriceOption.IsEnabled = true;
             },
              TaskScheduler.FromCurrentSynchronizationContext()
             );
